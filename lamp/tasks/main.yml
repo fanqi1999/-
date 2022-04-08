@@ -1,0 +1,34 @@
+---
+# tasks file for lamp
+
+- name: install lamp rely
+  yum: name={{ item }} state=present
+  loop:
+      - httpd
+      - php
+      - mariadb-server
+      - php-mysql
+      - php-gd
+      - php-devel
+      - gd
+
+- name: push httpd config file
+  copy:
+      src: httpd.conf
+      dest: /etc/httpd/conf/httpd.conf
+  notify: restart http daemon
+
+- name: push testphp file
+  copy: src={{ item }} dest=/var/www/html 
+  loop:
+      - test01.php
+      - test02.php
+
+- name: delete welcome.conf
+  shell: rm -rf /etc/httpd/conf.d/welcome.conf
+
+- name: start lamp daemon
+  service: name={{ item }} state=started enabled=yes
+  loop:
+      - httpd
+      - mariadb

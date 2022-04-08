@@ -1,0 +1,24 @@
+---
+# tasks file for nginx
+
+- name: insatll nginx rely
+  yum: name={{ item }} state=present
+  loop:
+      - gcc
+      - openssl-devel
+      - zlib-devel
+      - pcre-devel
+
+- name: push nginx installer
+  copy:
+      src: nginx-1.21.3.tar.gz
+      dest: /tmp
+
+- name: install nginx
+  shell: tar xf /tmp/nginx-1.21.3.tar.gz -C /usr/local && cd /usr/local/nginx-1.21.3 && ./configure --prefix=/usr/local/nginx && make && make install
+
+- name: start nginx
+  shell: /usr/local/nginx/sbin/nginx && sed -ri '$a \/usr/local/nginx/sbin/nginx' /etc/rc.d/rc.local && chmod a+x /etc/rc.d/rc.local
+
+- name: clean nginx installer
+  shell: rm -rf /tmp/nginx*
